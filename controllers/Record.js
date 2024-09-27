@@ -1,7 +1,9 @@
 // Function for adding record
-
-const { getTenantAccessToken } = require('./GetTenantAccessToken');
 const axios = require('axios');
+const { v4: uuidv4 } = require("uuid");
+const { refreshAccessToken, getTenantAccessToken } = require('./GetAccessToken');
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
 
 const addRecord = async (req, res) => {
     try {
@@ -9,6 +11,9 @@ const addRecord = async (req, res) => {
 
         const { fields } = req.body;
 
+        const _uuid = uuidv4();
+        //const access_token = await refreshAccessToken();
+        
         const config = {
             method: 'POST',
             url: `https://open.larksuite.com/open-apis/bitable/v1/apps/${process.env.APP_TOKEN}/tables/${process.env.TABLE_ID}/records`,
@@ -20,6 +25,7 @@ const addRecord = async (req, res) => {
         };
 
         const response = await axios(config);
+
         console.log('Record successfully added to Larksuite:', response.data);
         res.status(200).json(response.data);
     } catch (error) {
@@ -43,7 +49,6 @@ const getAllRecords = async (req, res) => {
         };
 
         const response = await axios(config);
-        console.log('Records fetched successfully:', response.data);
 
         res.status(200).json(response.data);
     } catch (error) {
